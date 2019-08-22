@@ -25,6 +25,6 @@ encryption.o: encryption.cpp header.h little.h types.h woodsec.h
 woodsec.o: woodsec.cpp
 	$(CC) $(CPPFLAGS) $< -o $@
 
-clear:
+clean:
 	$(RM) $(OBJS)
 	$(RM) $(TARGET)

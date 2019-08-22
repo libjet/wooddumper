@@ -54,7 +54,7 @@ static bool DumpInternal(FILE* aF,CCard* aCard)
         break;
       }
       pos+=block;
-      iprintf("\x1b[32Ddumped %u bytes",pos);
+      iprintf("\x1b[32Ddumped %lu bytes",pos);
     }
     iprintf("\n");
   }
