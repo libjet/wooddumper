@@ -35,12 +35,12 @@ int main(int argc,char *argv[])
   fNDS=fopen(argv[2],"r+b");
   if(fNDS)
   {
-    if(stricmp("e",argv[1])==0) //encrypt
+    if(strcasecmp("e",argv[1])==0) //encrypt
     {
       printf("encrypting %s.\n",argv[2]);
       if(!EnDecryptSecureArea(true)) result=1;
     }
-    else if(stricmp("d",argv[1])==0) //decrypt
+    else if(strcasecmp("d",argv[1])==0) //decrypt
     {
       printf("decrypting %s.\n",argv[2]);
       if(!EnDecryptSecureArea(false)) result=1;

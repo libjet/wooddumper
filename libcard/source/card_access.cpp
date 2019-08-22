@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include "card_access.h"
 #include "key1.h"
+#include "nds/card.h"
 
 void CCard::Panic(void)
 {
@@ -64,20 +65,20 @@ void CCard::Reset(void)
 {
   u8 cmdData[8]={0,0,0,0,0,0,0,CARD_CMD_DUMMY};
   cardWriteCommand(cmdData);
-  CARD_CR2=CARD_ACTIVATE|CARD_nRESET|CARD_CLK_SLOW|CARD_BLK_SIZE(5)|CARD_DELAY2(0x18);
+  REG_ROMCTRL=CARD_ACTIVATE|CARD_nRESET|CARD_CLK_SLOW|CARD_BLK_SIZE(5)|CARD_DELAY2(0x18);
   u32 readed=0;
   do
   {
-    if(CARD_CR2&CARD_DATA_READY)
+    if(REG_ROMCTRL&CARD_DATA_READY)
     {
       if(readed<0x2000)
       {
-        u32 data=CARD_DATA_RD;
+        u32 data=REG_CARD_DATA_RD;
         (void)data;
         readed+=4;
       }
     }
-  } while(CARD_CR2&CARD_BUSY);
+  } while(REG_ROMCTRL&CARD_BUSY);
 }
 
 void CCard::Header(u8* aHeader)
@@ -96,17 +97,17 @@ void CCard::Header(u8* aHeader)
 
 void CCard::ReadHeader(void)
 {
-  CARD_CR2=0;
-  CARD_CR1H=0;
+  REG_ROMCTRL=0;
+  REG_AUXSPICNTH=0;
   swiDelay(167550);
-  CARD_CR1H=CARD_CR1_ENABLE|CARD_CR1_IRQ;
-  CARD_CR2=CARD_nRESET|CARD_SEC_SEED;
-  while(CARD_CR2&CARD_BUSY) ;
+  REG_AUXSPICNTH=CARD_CR1_ENABLE|CARD_CR1_IRQ;
+  REG_ROMCTRL=CARD_nRESET|CARD_SEC_SEED;
+  while(REG_ROMCTRL&CARD_BUSY) ;
   Reset();
-  while(CARD_CR2&CARD_BUSY) ;
+  while(REG_ROMCTRL&CARD_BUSY) ;
   iCardId=cardReadID(0);
-  iprintf("card id: 0x%x\n",iCardId);
-  while(CARD_CR2&CARD_BUSY) ;
+  iprintf("card id: 0x%lx\n",iCardId);
+  while(REG_ROMCTRL&CARD_BUSY) ;
   iCheapCard=iCardId&0x80000000;
   if(iOk) Header(iSecureArea);
 }
@@ -115,20 +116,20 @@ void CCard::GetIDSafe(uint32 flags,const uint8* command)
 {
   u32 data;
   cardWriteCommand(command);
-  CARD_CR2=flags|CARD_BLK_SIZE(7);
+  REG_ROMCTRL=flags|CARD_BLK_SIZE(7);
   do
   {
-    if(CARD_CR2&CARD_DATA_READY)
+    if(REG_ROMCTRL&CARD_DATA_READY)
     {
-      data=CARD_DATA_RD;
+      data=REG_CARD_DATA_RD;
       if(data!=iCardId)
       {
-        printf("secure cardid fail:%x\n",data);
+        printf("secure cardid fail:%lx\n",data);
         iOk=false;
         break;
       }
     }
-  } while(CARD_CR2&CARD_BUSY);
+  } while(REG_ROMCTRL&CARD_BUSY);
 }
 
 void CCard::ReadSecureArea(void)
@@ -152,12 +153,12 @@ void CCard::ReadSecureArea(void)
   }
   cardPolledTransfer(flagsKey1,NULL,0,cmdData);
 
-  CARD_CR2=0;
-  CARD_1B0=cardSeedBytes[iHeader->deviceType&0x07]|(iKey1.nnn<<15)|(iKey1.mmm<<27)|0x6000;
-  CARD_1B4=0x879b9b05;
-  CARD_1B8=iKey1.mmm>>5;
-  CARD_1BA=0x5c;
-  CARD_CR2=CARD_nRESET|CARD_SEC_SEED|CARD_SEC_EN|CARD_SEC_DAT;
+  REG_ROMCTRL=0;
+  REG_CARD_1B0=cardSeedBytes[iHeader->deviceType&0x07]|(iKey1.nnn<<15)|(iKey1.mmm<<27)|0x6000;
+  REG_CARD_1B4=0x879b9b05;
+  REG_CARD_1B8=iKey1.mmm>>5;
+  REG_CARD_1BA=0x5c;
+  REG_ROMCTRL=CARD_nRESET|CARD_SEC_SEED|CARD_SEC_EN|CARD_SEC_DAT;
   flagsKey1|=CARD_SEC_EN|CARD_SEC_DAT;
 
   CreateEncryptedCommand(CARD_CMD_SECURE_CHIPID,cmdData,0);

@@ -104,8 +104,8 @@ void process(CSocket2* aConn)
     else if(check(buffer,"PORT"))
     {
       u32 h1,h2,h3,h4,p1,p2;
-      sscanf(buffer+5,"%3u,%3u,%3u,%3u,%3u,%3u",&h1,&h2,&h3,&h4,&p1,&p2);
-      sprintf(address,"%u.%u.%u.%u",h1,h2,h3,h4);
+      sscanf(buffer+5,"%3lu,%3lu,%3lu,%3lu,%3lu,%3lu",&h1,&h2,&h3,&h4,&p1,&p2);
+      sprintf(address,"%lu.%lu.%lu.%lu",h1,h2,h3,h4);
       port=((p1&0xff)<<8)|(p2&0xff);
       aConn->Send("200 PORT command successful\r\n");
     }
@@ -122,7 +122,7 @@ void process(CSocket2* aConn)
         list=new CSocket2(false);
         list->Connect(address,port);
       }
-      sprintf(line,"-rw-r--r--    1 ftp      ftp    %10u Jan 01  2004 %s.nds\r\n",card->CartSize(),card->Name());
+      sprintf(line,"-rw-r--r--    1 ftp      ftp    %10lu Jan 01  2004 %s.nds\r\n",card->CartSize(),card->Name());
       list->Send(line);
       delete list;
       aConn->Send("226 Transfer Complete\r\n");
@@ -222,8 +222,8 @@ void process(CSocket2* aConn)
     }
     else if(check(buffer,"REST"))
     {
-      sscanf(buffer+5,"%u",&restore);
-      sprintf(line,"350 Restarting at %u. Send RETR to initiate transfer\r\n",restore);
+      sscanf(buffer+5,"%lu",&restore);
+      sprintf(line,"350 Restarting at %lu. Send RETR to initiate transfer\r\n",restore);
       aConn->Send(line);
     }
     else if(check(buffer,"PASV"))
