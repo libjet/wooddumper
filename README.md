@@ -12,6 +12,7 @@ The only exception is woodsec, which according to the creator is a "tool to mani
 
 There actually has been a patch made to support libnds 1.4.8 on Mar 19, 2016, and will be tested to see if it fixes any issues that
 have arisen over the years, but even that's outdated as the current version is libnds 1.7.3-3 as of Aug 22, 2019.
+This patch worked, but upon successfully compiling and running the tool I realised that this is r30, while the latest compiled version is r85 :(
 
 
 # User guide
