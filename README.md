@@ -1,4 +1,4 @@
-# wooddumper
+# wooddumper v0.30 (r30)
 Automatically exported from code.google.com/p/wooddumper
 
 "wooddumper" is a tool made around 2010 that aims to dump SLOT-1 Cartridges into a .nds format on the Nintendo DS.
