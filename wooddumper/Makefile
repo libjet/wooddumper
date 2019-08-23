@@ -5,32 +5,46 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-include $(DEVKITARM)/ds_rules
-
-export TARGET		:=	$(shell basename $(CURDIR))
-export TOPDIR		:=	$(CURDIR)
+export TARGET	:=	$(shell basename $(CURDIR))
+export TOPDIR	:=	$(CURDIR)
 export LIBCARD		:=	$(shell dirname $(CURDIR))/libcard
 
+# specify a directory which contains the nitro filesystem
+# this is relative to the Makefile
+NITRO_FILES	:=
 
-.PHONY: $(TARGET).arm7 $(TARGET).arm9
+# These set the information text in the nds file
+GAME_TITLE     := wooddumper
+GAME_SUBTITLE1 := built with devkitARM
+GAME_SUBTITLE2 := http://devitpro.org
+
+include $(DEVKITARM)/ds_rules
+
+.PHONY: checkarm7 checkarm9 clean
 
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-all: $(TARGET).nds
+all: checkarm7 checkarm9 $(TARGET).nds
 
 #---------------------------------------------------------------------------------
-$(TARGET).nds	:	$(TARGET).arm7 $(TARGET).arm9
-	ndstool	-c $(TARGET).nds -7 $(TARGET).arm7 -9 $(TARGET).arm9 -b $(TARGET).bmp "wood dumper;:p;www.no-intro.org"
+checkarm7:
+	$(MAKE) -C arm7
+	
+#---------------------------------------------------------------------------------
+checkarm9:
+	$(MAKE) -C arm9
 
 #---------------------------------------------------------------------------------
-$(TARGET).arm7	: arm7/$(TARGET).elf
-$(TARGET).arm9	: arm9/$(TARGET).elf
+$(TARGET).nds	: $(NITRO_FILES) arm7/$(TARGET).arm7.elf arm9/$(TARGET).arm9.elf
+	ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).arm7.elf -9 arm9/$(TARGET).arm9.elf \
+	-b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" \
+	$(_ADDFILES)
 
 #---------------------------------------------------------------------------------
 arm7/$(TARGET).elf:
 	$(MAKE) -C arm7
-
+	
 #---------------------------------------------------------------------------------
 arm9/$(TARGET).elf:
 	$(MAKE) -C arm9
